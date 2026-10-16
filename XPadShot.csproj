@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>XPadShot</RootNamespace>
+    <AssemblyName>XPadShot</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>assets\xpadshot.ico</ApplicationIcon>
+    <Version>1.8.0</Version>
+    <Product>XPadShot</Product>
+    <Description>Take a screenshot with a controller combo (XInput).</Description>
+    <!-- WFAC010: WinForms advises its own DPI API; this is a WPF app, manifest-based PerMonitorV2 is correct here. -->
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\Xpadshot.png" />
+    <Resource Include="assets\Button_Logo.png" />
+  </ItemGroup>
+
+</Project>

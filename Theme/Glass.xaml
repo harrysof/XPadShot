@@ -1,0 +1,540 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============ Palette: obsidian aero ============ -->
+    <Color x:Key="ColWindowTop">#2A3242</Color>
+    <Color x:Key="ColWindowBottom">#11141B</Color>
+    <Color x:Key="ColTitleTop">#3A4457</Color>
+    <Color x:Key="ColTitleBottom">#1E2430</Color>
+    <Color x:Key="ColTextPrimary">#E3EDF9</Color>
+    <Color x:Key="ColTextSecondary">#9CB0C8</Color>
+    <Color x:Key="ColTextTertiary">#6E829B</Color>
+    <Color x:Key="ColAzure">#59B6FF</Color>
+    <Color x:Key="ColGreen">#5ED68F</Color>
+
+    <SolidColorBrush x:Key="TextPrimary" Color="{StaticResource ColTextPrimary}"/>
+    <SolidColorBrush x:Key="TextSecondary" Color="{StaticResource ColTextSecondary}"/>
+    <SolidColorBrush x:Key="TextTertiary" Color="{StaticResource ColTextTertiary}"/>
+    <SolidColorBrush x:Key="BrushGreen" Color="{StaticResource ColGreen}"/>
+
+    <LinearGradientBrush x:Key="WindowFill" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource ColWindowTop}" Offset="0"/>
+        <GradientStop Color="{StaticResource ColWindowBottom}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="TitleFill" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="{StaticResource ColTitleTop}" Offset="0"/>
+        <GradientStop Color="{StaticResource ColTitleBottom}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CardFill" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#12FFFFFF" Offset="0"/>
+        <GradientStop Color="#07FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CardBorder" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#55FFFFFF" Offset="0"/>
+        <GradientStop Color="#16FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#0BFFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CardGloss" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#12FFFFFF" Offset="0"/>
+        <GradientStop Color="#00FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="TitleGloss" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#2AFFFFFF" Offset="0"/>
+        <GradientStop Color="#00FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="ComboFill" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#26FFFFFF" Offset="0"/>
+        <GradientStop Color="#10FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <SolidColorBrush x:Key="ComboBorder" Color="#38FFFFFF"/>
+    <SolidColorBrush x:Key="ComboBorderHover" Color="#8CBFE8FF"/>
+    <SolidColorBrush x:Key="ComboFillHover" Color="#33FFFFFF"/>
+    <SolidColorBrush x:Key="ComboFillPressed" Color="#16000000"/>
+
+    <SolidColorBrush x:Key="PopupFill" Color="#F01A212D"/>
+    <SolidColorBrush x:Key="ItemHover" Color="#332E9BFF"/>
+    <SolidColorBrush x:Key="ItemSelected" Color="#262E9BFF"/>
+    <SolidColorBrush x:Key="AccentText" Color="#9FD3FF"/>
+    <SolidColorBrush x:Key="ScrollThumb" Color="#5A6E88"/>
+
+    <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+    <LinearGradientBrush x:Key="CaptionFill" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#3E4A5F" Offset="0"/>
+        <GradientStop Color="#232A38" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="CaptionBorder" Color="#38FFFFFF"/>
+
+    <!-- ============ Cards ============ -->
+    <ControlTemplate x:Key="GlassCardTemplate" TargetType="ContentControl">
+        <Grid>
+            <Border Background="{StaticResource CardFill}"
+                    BorderBrush="{StaticResource CardBorder}"
+                    BorderThickness="1"
+                    CornerRadius="10">
+                <Border.Effect>
+                    <DropShadowEffect Color="#0A0D13" BlurRadius="18" ShadowDepth="5" Opacity="0.5"/>
+                </Border.Effect>
+            </Border>
+            <Border CornerRadius="10,10,0,0" Height="38" Margin="1,1,1,0"
+                    VerticalAlignment="Top"
+                    Background="{StaticResource CardGloss}"
+                    IsHitTestVisible="False"/>
+            <ContentPresenter Margin="{TemplateBinding Padding}"/>
+        </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="GlassCard" TargetType="ContentControl">
+        <Setter Property="Template" Value="{StaticResource GlassCardTemplate}"/>
+        <Setter Property="Padding" Value="14,12"/>
+    </Style>
+
+    <!-- ============ Text styles ============ -->
+    <Style x:Key="SectionLabel" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+    </Style>
+
+    <Style x:Key="HintText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="Foreground" Value="{StaticResource TextTertiary}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- ============ Caption buttons ============ -->
+    <ControlTemplate x:Key="CaptionButtonTemplate" TargetType="Button">
+        <Grid>
+            <Border x:Name="Bg"
+                    CornerRadius="5"
+                    BorderThickness="1"
+                    BorderBrush="{StaticResource CaptionBorder}"
+                    Background="{StaticResource CaptionFill}"/>
+            <Border x:Name="Gloss"
+                    CornerRadius="4,4,0,0" Height="10" Margin="1,1,1,0"
+                    VerticalAlignment="Top"
+                    Background="#1FFFFFFF"
+                    IsHitTestVisible="False"/>
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="True"/>
+                    <Condition Property="Tag" Value=""/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="Bg" Property="Background" Value="#40FFFFFF"/>
+                <Setter TargetName="Bg" Property="BorderBrush" Value="#66FFFFFF"/>
+                <Setter TargetName="Bg" Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect Color="#59B6FF" BlurRadius="14" ShadowDepth="0" Opacity="0.45"/>
+                    </Setter.Value>
+                </Setter>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="True"/>
+                    <Condition Property="Tag" Value="close"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="Bg" Property="Background">
+                    <Setter.Value>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#CD5548" Offset="0"/>
+                            <GradientStop Color="#8E3A31" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Setter.Value>
+                </Setter>
+                <Setter TargetName="Bg" Property="BorderBrush" Value="#FF948A"/>
+                <Setter TargetName="Bg" Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect Color="#FF6A5E" BlurRadius="16" ShadowDepth="0" Opacity="0.55"/>
+                    </Setter.Value>
+                </Setter>
+            </MultiTrigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Bg" Property="Opacity" Value="0.75"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="CaptionButton" TargetType="Button">
+        <Setter Property="Template" Value="{StaticResource CaptionButtonTemplate}"/>
+        <Setter Property="Tag" Value=""/>
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="Height" Value="24"/>
+        <Setter Property="Margin" Value="5,0,0,0"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+    </Style>
+
+    <Style x:Key="CloseCaptionButton" TargetType="Button" BasedOn="{StaticResource CaptionButton}">
+        <Setter Property="Tag" Value="close"/>
+    </Style>
+
+    <!-- ============ ComboBox ============ -->
+    <DataTemplate x:Key="ButtonOptionTemplate">
+        <TextBlock Text="{Binding Label}"/>
+    </DataTemplate>
+
+    <DataTemplate x:Key="ShortcutOptionTemplate">
+        <TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Display}"/>
+    </DataTemplate>
+
+    <Style x:Key="GlassComboItem" TargetType="ComboBoxItem">
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="Padding" Value="10,5"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="Bg" CornerRadius="5" Margin="2,1" Padding="{TemplateBinding Padding}" Background="Transparent">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource ItemHover}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource ItemSelected}"/>
+                            <Setter Property="Foreground" Value="{StaticResource AccentText}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GlassScrollBar" TargetType="ScrollBar">
+        <Setter Property="Width" Value="9"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Track x:Name="PART_Track" IsDirectionReversed="True" Margin="0,3">
+                        <Track.Thumb>
+                            <Thumb>
+                                <Thumb.Template>
+                                    <ControlTemplate TargetType="Thumb">
+                                        <Border Background="{StaticResource ScrollThumb}" CornerRadius="4" Margin="2,0"/>
+                                    </ControlTemplate>
+                                </Thumb.Template>
+                            </Thumb>
+                        </Track.Thumb>
+                        <Track.IncreaseRepeatButton>
+                            <RepeatButton Command="ScrollBar.PageDownCommand" Focusable="False" Opacity="0">
+                                <RepeatButton.Template>
+                                    <ControlTemplate TargetType="RepeatButton">
+                                        <Border Background="Transparent"/>
+                                    </ControlTemplate>
+                                </RepeatButton.Template>
+                            </RepeatButton>
+                        </Track.IncreaseRepeatButton>
+                        <Track.DecreaseRepeatButton>
+                            <RepeatButton Command="ScrollBar.PageUpCommand" Focusable="False" Opacity="0">
+                                <RepeatButton.Template>
+                                    <ControlTemplate TargetType="RepeatButton">
+                                        <Border Background="Transparent"/>
+                                    </ControlTemplate>
+                                </RepeatButton.Template>
+                            </RepeatButton>
+                        </Track.DecreaseRepeatButton>
+                    </Track>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GlassCombo" TargetType="ComboBox">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource GlassComboItem}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton x:Name="ToggleButton"
+                                      Focusable="False"
+                                      ClickMode="Press"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Grid>
+                                        <Border x:Name="Bg" CornerRadius="7"
+                                                BorderThickness="1"
+                                                BorderBrush="{StaticResource ComboBorder}"
+                                                Background="{StaticResource ComboFill}"/>
+                                        <Border x:Name="Gloss" CornerRadius="6,6,0,0" Height="16" Margin="1,1,1,0"
+                                                VerticalAlignment="Top"
+                                                Background="#14FFFFFF"
+                                                IsHitTestVisible="False"/>
+                                        <Path x:Name="Chevron"
+                                              Data="M0,0 L5,5 L10,0"
+                                              Stroke="{StaticResource TextSecondary}"
+                                              StrokeThickness="1.6"
+                                              StrokeStartLineCap="Round"
+                                              StrokeEndLineCap="Round"
+                                              HorizontalAlignment="Right"
+                                              VerticalAlignment="Center"
+                                              Margin="0,1,13,0"/>
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource ComboBorderHover}"/>
+                                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource ComboFillHover}"/>
+                                            <Setter TargetName="Chevron" Property="Stroke" Value="{StaticResource TextPrimary}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource ComboFillPressed}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                            <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource ComboBorderHover}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter IsHitTestVisible="False"
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                          ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                          Margin="12,0,30,0"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="Left"/>
+                        <Popup x:Name="PART_Popup"
+                               Placement="Bottom"
+                               VerticalOffset="5"
+                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                               AllowsTransparency="True"
+                               PopupAnimation="Fade"
+                               StaysOpen="False"
+                               Focusable="False">
+                            <Border MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="480"
+                                    CornerRadius="8"
+                                    Background="{StaticResource PopupFill}"
+                                    BorderBrush="{StaticResource CardBorder}"
+                                    BorderThickness="1">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#05070B" BlurRadius="20" ShadowDepth="6" Opacity="0.6"/>
+                                </Border.Effect>
+                                <ScrollViewer Padding="4" VerticalScrollBarVisibility="Auto">
+                                    <ScrollViewer.Resources>
+                                        <Style TargetType="ScrollBar" BasedOn="{StaticResource GlassScrollBar}"/>
+                                    </ScrollViewer.Resources>
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============ Buttons (dialog + icon) ============ -->
+    <ControlTemplate x:Key="GlassButtonTemplate" TargetType="Button">
+        <Grid>
+            <Border x:Name="Bg" CornerRadius="7"
+                    BorderThickness="1"
+                    BorderBrush="{StaticResource ComboBorder}"
+                    Background="{StaticResource ComboFill}"/>
+            <Border x:Name="Gloss" CornerRadius="6,6,0,0" Height="13" Margin="1,1,1,0"
+                    VerticalAlignment="Top"
+                    Background="#12FFFFFF"
+                    IsHitTestVisible="False"/>
+            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource ComboBorderHover}"/>
+                <Setter TargetName="Bg" Property="Background" Value="{StaticResource ComboFillHover}"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Bg" Property="Background" Value="{StaticResource ComboFillPressed}"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.4"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="GlassButton" TargetType="Button">
+        <Setter Property="Template" Value="{StaticResource GlassButtonTemplate}"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="MinWidth" Value="72"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+    </Style>
+
+    <Style x:Key="GlassIconButton" TargetType="Button" BasedOn="{StaticResource GlassButton}">
+        <Setter Property="Width" Value="30"/>
+        <Setter Property="MinWidth" Value="0"/>
+    </Style>
+
+    <Style x:Key="GlassTextBox" TargetType="TextBox">
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="CaretBrush" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="SelectionBrush" Value="{StaticResource ComboBorderHover}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <Border x:Name="Bg" CornerRadius="7"
+                                BorderThickness="1"
+                                BorderBrush="{StaticResource ComboBorder}"
+                                Background="#F2181F2B"/>
+                        <Border CornerRadius="6,6,0,0" Height="16" Margin="1,1,1,0"
+                                VerticalAlignment="Top"
+                                Background="#14FFFFFF"
+                                IsHitTestVisible="False"/>
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      Margin="12,0,12,0"
+                                      VerticalAlignment="Center"
+                                      Focusable="False"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource ComboBorderHover}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============ ListBox (dialog) ============ -->
+    <Style x:Key="GlassListBoxItem" TargetType="ListBoxItem">
+        <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="Padding" Value="10,7"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Bg" CornerRadius="6" Margin="1" Padding="{TemplateBinding Padding}" Background="Transparent">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource ItemHover}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{StaticResource ItemSelected}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GlassListBox" TargetType="ListBox">
+        <Setter Property="Background" Value="#14000000"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ComboBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource GlassListBoxItem}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBox">
+                    <Border CornerRadius="8"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="3">
+                        <ScrollViewer Focusable="False">
+                            <ScrollViewer.Resources>
+                                <Style TargetType="ScrollBar" BasedOn="{StaticResource GlassScrollBar}"/>
+                            </ScrollViewer.Resources>
+                            <ItemsPresenter/>
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <DataTemplate x:Key="ProfileTemplate">
+        <TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis"/>
+    </DataTemplate>
+
+    <!-- ============ CheckBox ============ -->
+    <Style x:Key="GlassCheckBox" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Grid Width="18" Height="18" VerticalAlignment="Center">
+                            <Border x:Name="Box"
+                                    CornerRadius="5"
+                                    BorderThickness="1"
+                                    BorderBrush="{StaticResource ComboBorder}"
+                                    Background="{StaticResource ComboFill}"/>
+                            <Border CornerRadius="4,4,0,0" Height="8" Margin="1,1,1,0"
+                                    VerticalAlignment="Top"
+                                    Background="#16FFFFFF"
+                                    IsHitTestVisible="False"/>
+                            <Path x:Name="Check"
+                                  Data="M4,9.5 L7.5,13 L14,5"
+                                  Stroke="#EAF7FF"
+                                  StrokeThickness="2"
+                                  StrokeStartLineCap="Round"
+                                  StrokeEndLineCap="Round"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  Visibility="Collapsed"/>
+                        </Grid>
+                        <ContentPresenter Margin="9,0,0,0"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="#8CC7F0FF"/>
+                            <Setter TargetName="Box" Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#6FC4FF" Offset="0"/>
+                                        <GradientStop Color="#2E7FD0" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="Box" Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect Color="#59B6FF" BlurRadius="10" ShadowDepth="0" Opacity="0.6"/>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource ComboBorderHover}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

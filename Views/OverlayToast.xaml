@@ -1,0 +1,36 @@
+<Window x:Class="XPadShot.Views.OverlayToast"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="XPadShot overlay"
+        Width="256" Height="44"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        Focusable="False"
+        Topmost="True"
+        WindowStartupLocation="Manual"
+        SnapsToDevicePixels="True"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Display"
+        FontFamily="Segoe UI">
+
+    <Border x:Name="Root"
+            Width="232"
+            HorizontalAlignment="Right"
+            Margin="0,0,24,0"
+            CornerRadius="8"
+            Background="#80D0342C"
+            BorderBrush="#59FFFFFF"
+            BorderThickness="1">
+        <TextBlock x:Name="MessageText"
+                   Text="Screenshot taken"
+                   Foreground="#F7FFFFFF"
+                   FontSize="13.5"
+                   FontWeight="SemiBold"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+    </Border>
+</Window>
