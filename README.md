@@ -49,8 +49,6 @@ PNG.
   the process name is the fallback, `Screenshot` the last resort.
 - Covers all monitors combined, exactly like Win+PrtScn.
 
-![The feedback toast in the top right corner](docs/toast.png)
-
 ## Tray behaviour
 
 - Closing the window (the X button) does **not** quit: the app keeps running in the
