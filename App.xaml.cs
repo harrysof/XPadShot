@@ -109,6 +109,14 @@ public partial class App : System.Windows.Application
 
         SetupTray();
 
+        // Keep the tray tooltip honest when the power switch is paused.
+        _viewModel.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(MainViewModel.IsAppEnabled))
+                UpdateTrayStatus();
+        };
+        UpdateTrayStatus();
+
         // --minimized (used by the "start with Windows" entry): tray only.
         if (!HasArg(e, "--minimized"))
             _window.Show();
@@ -162,6 +170,14 @@ public partial class App : System.Windows.Application
         _window.Show();
         _window.WindowState = WindowState.Normal;
         _window.Activate();
+    }
+
+    private void UpdateTrayStatus()
+    {
+        if (_tray is null || _viewModel is null)
+            return;
+
+        _tray.Text = _viewModel.IsAppEnabled ? "XPadShot" : "XPadShot - paused";
     }
 
     private void ExitApplication()

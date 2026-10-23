@@ -13,11 +13,28 @@ public sealed class ControllerWatcher : IDisposable
 
     private readonly Thread _thread;
     private volatile bool _running = true;
+    private volatile bool _enabled = true;
     private int _first = (int)ControllerButton.LB;
     private int _second = (int)ControllerButton.A;
     private int _recordFirst = (int)ControllerButton.RB;
     private int _recordSecond = (int)ControllerButton.B;
+    private int _pinnedSlot;
     private int _currentSlot = -2; // -2 = not polled yet
+
+    /// <summary>Master switch for the capture/record combos: when false, they
+    /// never trigger, but the pad is still tracked for the player picker.</summary>
+    public bool Enabled
+    {
+        get => _enabled;
+        set => _enabled = value;
+    }
+
+    /// <summary>XInput position to listen on (0-3). Player N uses N-1.</summary>
+    public int PinnedSlot
+    {
+        get => Volatile.Read(ref _pinnedSlot);
+        set => Volatile.Write(ref _pinnedSlot, Math.Clamp(value, 0, 3));
+    }
 
     /// <summary>Latest known slot: 0-3, -1 for none, -2 before the first poll.</summary>
     public int CurrentSlot => Volatile.Read(ref _currentSlot);
@@ -76,6 +93,7 @@ public sealed class ControllerWatcher : IDisposable
 
         while (_running)
         {
+            bool enabled = Enabled;
             int first = (int)First;
             int second = (int)Second;
             int recordFirst = (int)RecordFirst;
@@ -85,9 +103,13 @@ public sealed class ControllerWatcher : IDisposable
             // trigger: restart edge detection when a pair changes.
             if (first != seenFirst || second != seenSecond)
             {
+                bool wasHeldBeforeSwap = wasHeld;
                 seenFirst = first;
                 seenSecond = second;
                 wasHeld = false;
+
+                if (wasHeldBeforeSwap)
+                    ComboHeldChanged?.Invoke(false);
             }
 
             if (recordFirst != seenRecordFirst || recordSecond != seenRecordSecond)
@@ -97,7 +119,7 @@ public sealed class ControllerWatcher : IDisposable
                 wasRecordHeld = false;
             }
 
-            int slot = FindConnectedSlot(currentSlot, out var state);
+            int slot = FindConnectedSlot(PinnedSlot, out var state);
 
             if (slot != currentSlot)
             {
@@ -108,9 +130,16 @@ public sealed class ControllerWatcher : IDisposable
                 ConnectionChanged?.Invoke(slot);
             }
 
-            bool held = slot >= 0
-                && First.IsPressed(state.Gamepad)
-                && (Second == ControllerButton.None || Second.IsPressed(state.Gamepad));
+            var firstButton = (ControllerButton)first;
+            var secondButton = (ControllerButton)second;
+            bool hasCombo = firstButton != ControllerButton.None
+                || secondButton != ControllerButton.None;
+
+            bool held = enabled
+                && slot >= 0
+                && hasCombo
+                && (firstButton == ControllerButton.None || firstButton.IsPressed(state.Gamepad))
+                && (secondButton == ControllerButton.None || secondButton.IsPressed(state.Gamepad));
 
             if (held && !wasHeld)
                 ComboTriggered?.Invoke();
@@ -121,9 +150,16 @@ public sealed class ControllerWatcher : IDisposable
                 ComboHeldChanged?.Invoke(held);
             }
 
-            bool recordHeld = slot >= 0
-                && RecordFirst.IsPressed(state.Gamepad)
-                && (RecordSecond == ControllerButton.None || RecordSecond.IsPressed(state.Gamepad));
+            var recordFirstButton = (ControllerButton)recordFirst;
+            var recordSecondButton = (ControllerButton)recordSecond;
+            bool hasRecordCombo = recordFirstButton != ControllerButton.None
+                || recordSecondButton != ControllerButton.None;
+
+            bool recordHeld = enabled
+                && slot >= 0
+                && hasRecordCombo
+                && (recordFirstButton == ControllerButton.None || recordFirstButton.IsPressed(state.Gamepad))
+                && (recordSecondButton == ControllerButton.None || recordSecondButton.IsPressed(state.Gamepad));
 
             if (recordHeld && !wasRecordHeld)
                 RecordTriggered?.Invoke();
@@ -134,16 +170,10 @@ public sealed class ControllerWatcher : IDisposable
         }
     }
 
-    private static int FindConnectedSlot(int preferred, out XInputState state)
+    private static int FindConnectedSlot(int pinned, out XInputState state)
     {
-        if (preferred >= 0 && XInput.IsConnected((uint)preferred, out state))
-            return preferred;
-
-        for (uint i = 0; i < 4; i++)
-        {
-            if (XInput.IsConnected(i, out state))
-                return (int)i;
-        }
+        if (XInput.IsConnected((uint)pinned, out state))
+            return pinned;
 
         state = default;
         return -1;

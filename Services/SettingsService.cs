@@ -11,6 +11,12 @@ public sealed record AppSettings
     public List<CustomShortcut> CustomShortcuts { get; init; } = [];
     public string? SelectedProfile { get; init; }
 
+    /// <summary>Master switch state. False = paused: combos are ignored.</summary>
+    public bool Enabled { get; init; } = true;
+
+    /// <summary>Player position the app listens on (1-4). 0 from older settings falls back to 1.</summary>
+    public int ControllerSlot { get; init; }
+
     // Legacy (pre-1.2) single combo, kept for migration only.
     public ControllerButton? First { get; init; }
     public ControllerButton? Second { get; init; }

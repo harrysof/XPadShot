@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="XPadShot"
         Icon="assets/Xpadshot.png"
-        Width="430" Height="812"
+        Width="430" Height="760"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
@@ -28,6 +28,7 @@
             <Grid x:Name="ShellInner">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="38"/>
+                    <RowDefinition Height="50"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
@@ -87,56 +88,105 @@
                     </Grid>
                 </Border>
 
-                <!-- ============ Content ============ -->
-                <StackPanel Grid.Row="1" Margin="16,12,16,12">
+                <!-- ============ Master power / player panel ============ -->
+                <Border Grid.Row="1"
+                        BorderBrush="#33000000"
+                        BorderThickness="0,0,0,1">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#343E50" Offset="0"/>
+                            <GradientStop Color="#1E2531" Offset="0.5"/>
+                            <GradientStop Color="#141922" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
 
-                    <!-- Controller status -->
-                    <ContentControl Style="{StaticResource GlassCard}" Padding="14,10">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,3.5,0,0">
-                                <Grid Width="20" Height="20" VerticalAlignment="Center" Margin="0,-1,0,0">
-                                    <Ellipse Width="10" Height="10">
-                                        <Ellipse.Style>
-                                            <Style TargetType="Ellipse">
-                                                <Setter Property="Fill" Value="#39404E"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsConnected}" Value="True">
-                                                        <Setter Property="Fill" Value="{StaticResource BrushGreen}"/>
-                                                        <Setter Property="Effect">
-                                                            <Setter.Value>
-                                                                <DropShadowEffect Color="#5ED68F" BlurRadius="10" ShadowDepth="0" Opacity="0.8"/>
-                                                            </Setter.Value>
-                                                        </Setter>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Ellipse.Style>
-                                    </Ellipse>
-                                </Grid>
-                                <TextBlock Text="{Binding ConnectionText}"
-                                           FontWeight="SemiBold" FontSize="13"
-                                           VerticalAlignment="Center"
-                                           Margin="10,0,0,0"/>
-                            </StackPanel>
-                            <TextBlock Text="{Binding ConnectionHint}" Margin="30,3,0,0">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource HintText}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ConnectionHint}" Value="">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
+                    <Grid Margin="16,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.ColumnSpan="2"
+                                Height="1"
+                                VerticalAlignment="Top"
+                                Background="#26FFFFFF"
+                                IsHitTestVisible="False"/>
+
+                        <StackPanel Grid.Column="0"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="POWER"
+                                       FontSize="9.5"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource TextTertiary}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                            <ToggleButton x:Name="PowerSwitch"
+                                          Style="{StaticResource PowerSwitch}"
+                                          IsChecked="{Binding IsAppEnabled, Mode=TwoWay}"
+                                          ToolTip="Pause or resume the screenshot and screen-recording combos. Controller tracking stays on."/>
                         </StackPanel>
-                    </ContentControl>
+
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <StackPanel x:Name="PlayerPicker"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="PLAYER"
+                                           FontSize="9.5"
+                                           FontWeight="Bold"
+                                           Foreground="{StaticResource TextTertiary}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,9,0"/>
+                                <ComboBox Width="112"
+                                          Height="30"
+                                          Style="{StaticResource GlassComboCompact}"
+                                          ItemsSource="{Binding PlayerOptions}"
+                                          ItemTemplate="{StaticResource ButtonOptionTemplate}"
+                                          SelectedItem="{Binding SelectedPlayer, Mode=TwoWay}"
+                                          ToolTip="Listen on this XInput position. Player N = XInput slot N."/>
+                            </StackPanel>
+                            <Grid Width="16" Height="16"
+                                  Margin="8,0,0,0"
+                                  VerticalAlignment="Center"
+                                  ToolTip="Player LED: green 1, blue 2, yellow 3, purple 4. Controller tracking stays live when the power switch is off.">
+                                <Ellipse Fill="#0A0D12"
+                                         Stroke="#454F60"
+                                         StrokeThickness="1"/>
+                                <Ellipse Width="9" Height="9"
+                                         Style="{StaticResource PlayerLed}"/>
+                                <Ellipse Width="3" Height="2"
+                                         Fill="#7AFFFFFF"
+                                         HorizontalAlignment="Left"
+                                         VerticalAlignment="Top"
+                                         Margin="5,3,0,0"
+                                         IsHitTestVisible="False"/>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ============ Content ============ -->
+                <Grid Grid.Row="2">
+                    <StackPanel x:Name="ContentPanel" Margin="16,10,16,10">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Opacity" Value="1"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAppEnabled}" Value="False">
+                                        <Setter Property="Opacity" Value="0.42"/>
+                                        <Setter Property="IsEnabled" Value="False"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
 
                     <!-- Profiles -->
-                    <ContentControl Style="{StaticResource GlassCard}" Padding="14,10" Margin="0,10,0,0">
+                    <ContentControl Style="{StaticResource GlassCard}" Padding="14,8" Margin="0,8,0,0">
                         <StackPanel>
                             <TextBlock Text="Game profile" Style="{StaticResource SectionLabel}"/>
-                            <Grid Margin="0,10,0,0">
+                            <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
@@ -145,7 +195,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Grid Grid.Column="0">
-                                    <ComboBox Style="{StaticResource GlassCombo}"
+                                    <ComboBox Style="{StaticResource GlassComboCompact}"
                                               ItemsSource="{Binding Profiles}"
                                               ItemTemplate="{StaticResource ProfileTemplate}"
                                               SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"/>
@@ -196,10 +246,10 @@
                     </ContentControl>
 
                     <!-- Combo picker -->
-                    <ContentControl Style="{StaticResource GlassCard}" Padding="14,10" Margin="0,10,0,0">
+                    <ContentControl Style="{StaticResource GlassCard}" Padding="14,8" Margin="0,8,0,0">
                         <StackPanel>
                             <TextBlock Text="Screenshot combo" Style="{StaticResource SectionLabel}"/>
-                            <Grid Margin="0,10,0,0">
+                            <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
@@ -207,7 +257,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <ComboBox Grid.Column="0"
-                                          Style="{StaticResource GlassCombo}"
+                                          Style="{StaticResource GlassComboCompact}"
                                           ItemsSource="{Binding FirstOptions}"
                                           ItemTemplate="{StaticResource ButtonOptionTemplate}"
                                           SelectedValuePath="Value"
@@ -221,7 +271,7 @@
                                            VerticalAlignment="Center"/>
 
                                 <ComboBox Grid.Column="2"
-                                          Style="{StaticResource GlassCombo}"
+                                          Style="{StaticResource GlassComboCompact}"
                                           ItemsSource="{Binding SecondOptions}"
                                           ItemTemplate="{StaticResource ButtonOptionTemplate}"
                                           SelectedValuePath="Value"
@@ -231,10 +281,10 @@
                     </ContentControl>
 
                     <!-- Screen recording -->
-                    <ContentControl Style="{StaticResource GlassCard}" Padding="14,10" Margin="0,10,0,0">
+                    <ContentControl Style="{StaticResource GlassCard}" Padding="14,8" Margin="0,8,0,0">
                         <StackPanel>
                             <TextBlock Text="Screen recording" Style="{StaticResource SectionLabel}"/>
-                            <Grid Margin="0,10,0,0">
+                            <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
@@ -242,7 +292,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <ComboBox Grid.Column="0"
-                                          Style="{StaticResource GlassCombo}"
+                                          Style="{StaticResource GlassComboCompact}"
                                           ItemsSource="{Binding FirstOptions}"
                                           ItemTemplate="{StaticResource ButtonOptionTemplate}"
                                           SelectedValuePath="Value"
@@ -256,14 +306,14 @@
                                            VerticalAlignment="Center"/>
 
                                 <ComboBox Grid.Column="2"
-                                          Style="{StaticResource GlassCombo}"
+                                          Style="{StaticResource GlassComboCompact}"
                                           ItemsSource="{Binding RecordSecondOptions}"
                                           ItemTemplate="{StaticResource ButtonOptionTemplate}"
                                           SelectedValuePath="Value"
                                           SelectedValue="{Binding SelectedProfile.RecordSecond, Mode=TwoWay}"/>
                             </Grid>
 
-                            <Grid Margin="0,8,0,0">
+                            <Grid Margin="0,6,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
@@ -272,7 +322,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <ComboBox Grid.Column="0"
-                                          Style="{StaticResource GlassCombo}"
+                                          Style="{StaticResource GlassComboCompact}"
                                           ItemsSource="{Binding RecordShortcutOptions}"
                                           ItemTemplate="{StaticResource ShortcutOptionTemplate}"
                                           SelectedValuePath="Key"
@@ -317,9 +367,9 @@
                     </ContentControl>
 
                     <!-- Hero: the shutter button -->
-                    <ContentControl Style="{StaticResource GlassCard}" Padding="18,16,18,12" Margin="0,10,0,0">
+                    <ContentControl Style="{StaticResource GlassCard}" Padding="18,12,18,10" Margin="0,8,0,0">
                         <StackPanel HorizontalAlignment="Center">
-                            <Grid Width="140" Height="140">
+                            <Grid Width="128" Height="128">
                                 <Ellipse x:Name="LedGlow" Opacity="0">
                                     <Ellipse.Fill>
                                         <RadialGradientBrush>
@@ -349,7 +399,7 @@
                                        FontSize="19"
                                        FontWeight="SemiBold"
                                        HorizontalAlignment="Center"
-                                       Margin="0,14,0,0"/>
+                                       Margin="0,10,0,0"/>
                             <TextBlock Text="{Binding StateDetail}"
                                        Style="{StaticResource HintText}"
                                        HorizontalAlignment="Center"
@@ -360,17 +410,17 @@
                                        FontSize="11"
                                        Foreground="{StaticResource TextTertiary}"
                                        HorizontalAlignment="Center"
-                                       Margin="0,9,0,0"/>
+                                       Margin="0,7,0,0"/>
                         </StackPanel>
                     </ContentControl>
 
                     <CheckBox Style="{StaticResource GlassCheckBox}"
-                              Margin="4,13,0,0"
+                              Margin="4,10,0,0"
                               IsChecked="{Binding StartWithWindows, Mode=TwoWay}"
                               Content="Start with Windows (minimized to tray)"/>
 
                     <!-- Footer -->
-                    <Grid Margin="4,12,4,0">
+                    <Grid Margin="4,9,4,0">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="Saves to Pictures\Screenshots"
                                        FontSize="11"
@@ -388,13 +438,27 @@
                                       Fill="Transparent"/>
                             </Button>
                         </StackPanel>
-                        <TextBlock Text="v1.8"
+                        <TextBlock Text="v1.9"
                                    FontSize="11"
                                    Foreground="{StaticResource TextTertiary}"
                                    HorizontalAlignment="Right"
                                    VerticalAlignment="Center"/>
                     </Grid>
-                </StackPanel>
+                    </StackPanel>
+
+                    <Border Background="#4410151D" IsHitTestVisible="True">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAppEnabled}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
+                </Grid>
             </Grid>
         </Border>
     </Grid>

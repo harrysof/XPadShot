@@ -50,23 +50,36 @@ public sealed partial class ProfileItem : ObservableObject
         _recordShortcutId = recordShortcutId;
     }
 
-    public string Display => Second == ControllerButton.None
-        ? $"{Name} - {First.Label()}"
-        : $"{Name} - {First.Label()} + {Second.Label()}";
+    public string Display => (First, Second) switch
+    {
+        (ControllerButton.None, ControllerButton.None) => $"{Name} - None",
+        (ControllerButton.None, _) => $"{Name} - {Second.Label()}",
+        (_, ControllerButton.None) => $"{Name} - {First.Label()}",
+        _ => $"{Name} - {First.Label()} + {Second.Label()}",
+    };
 
     /// <summary>Recording-shortcut dropdown key: the built-in Game Bar entry or
     /// a custom shortcut ("custom:&lt;id&gt;"). Bound to the dropdown's value.</summary>
     public string RecordOptionKey
     {
-        get => RecordShortcut == RecordShortcut.Custom && !string.IsNullOrEmpty(RecordShortcutId)
-            ? RecordShortcutOption.ForCustom(RecordShortcutId)
-            : RecordShortcutOption.GameBarKey;
+        get => RecordShortcut switch
+        {
+            RecordShortcut.None => RecordShortcutOption.NoneKey,
+            RecordShortcut.Custom when !string.IsNullOrEmpty(RecordShortcutId)
+                => RecordShortcutOption.ForCustom(RecordShortcutId),
+            _ => RecordShortcutOption.GameBarKey,
+        };
         set
         {
             if (string.IsNullOrEmpty(value))
                 return;
 
-            if (value.StartsWith("custom:", StringComparison.Ordinal))
+            if (value == RecordShortcutOption.NoneKey)
+            {
+                RecordShortcutId = null;
+                RecordShortcut = RecordShortcut.None;
+            }
+            else if (value.StartsWith("custom:", StringComparison.Ordinal))
             {
                 RecordShortcutId = value["custom:".Length..];
                 RecordShortcut = RecordShortcut.Custom;

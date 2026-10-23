@@ -18,7 +18,6 @@ public partial class FirstRunDialog : Window
         InitializeComponent();
 
         _allButtons = Enum.GetValues<ControllerButton>()
-            .Where(b => b != ControllerButton.None)
             .Select(b => new ButtonOption(b, b.Label()))
             .ToList();
 
@@ -34,12 +33,16 @@ public partial class FirstRunDialog : Window
     {
         var first = FirstCombo.SelectedValue is ControllerButton selected ? selected : ControllerButton.LB;
 
-        var options = new List<ButtonOption> { new(ControllerButton.None, "None") };
-        options.AddRange(_allButtons.Where(o => o.Value != first));
+        var options = _allButtons
+            .Where(o => o.Value == ControllerButton.None || o.Value != first)
+            .ToList();
         SecondCombo.ItemsSource = options;
 
-        if (SecondCombo.SelectedValue is not ControllerButton second || second == first)
+        if (SecondCombo.SelectedValue is not ControllerButton second ||
+            (second == first && second != ControllerButton.None))
+        {
             SecondCombo.SelectedValue = first == ControllerButton.A ? ControllerButton.None : ControllerButton.A;
+        }
     }
 
     private void Start_Click(object sender, RoutedEventArgs e)

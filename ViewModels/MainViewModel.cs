@@ -27,6 +27,9 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     /// <summary>All buttons, for the first combo picker.</summary>
     public IReadOnlyList<ButtonOption> FirstOptions { get; }
 
+    /// <summary>Player positions 1-4 (XInput slots 0-3).</summary>
+    public IReadOnlyList<PlayerOption> PlayerOptions { get; }
+
     /// <summary>Named custom recording shortcuts, shared across profiles.</summary>
     public ObservableCollection<CustomShortcut> CustomShortcuts { get; } = [];
 
@@ -44,12 +47,29 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty] private bool _isRenaming;
     [ObservableProperty] private string _renameDraft = "";
     [ObservableProperty] private bool _isConnected;
-    [ObservableProperty] private string _connectionText = "Looking for a controller...";
-    [ObservableProperty] private string _connectionHint = "";
     [ObservableProperty] private bool _isComboHeld;
     [ObservableProperty] private string _stateWord = "Ready";
     [ObservableProperty] private string _stateDetail = "";
     [ObservableProperty] private string _sessionText = "";
+
+    /// <summary>Master switch for the screenshot/recording combos. False pauses
+    /// those actions; controller tracking and the player picker stay live.</summary>
+    [ObservableProperty] private bool _isAppEnabled = true;
+
+    /// <summary>Selected player position: 1-4, mapped to XInput slot N-1.</summary>
+    [ObservableProperty] private int _controllerSlot = 1;
+
+    /// <summary>Object wrapper for the player dropdown (avoids index-based
+    /// SelectedValue confusion while the items are being created).</summary>
+    public PlayerOption SelectedPlayer
+    {
+        get => PlayerOptions.FirstOrDefault(p => p.Value == ControllerSlot) ?? PlayerOptions[0];
+        set
+        {
+            if (value is not null && value.Value != ControllerSlot)
+                ControllerSlot = value.Value;
+        }
+    }
 
     public MainViewModel(
         ControllerWatcher watcher,
@@ -66,11 +86,28 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         FolderPath = screenshots.FolderPath;
 
         FirstOptions = Enum.GetValues<ControllerButton>()
-            .Where(b => b != ControllerButton.None)
             .Select(b => new ButtonOption(b, b.Label()))
             .ToList();
 
+        PlayerOptions =
+        [
+            new PlayerOption(1, "Player 1"),
+            new PlayerOption(2, "Player 2"),
+            new PlayerOption(3, "Player 3"),
+            new PlayerOption(4, "Player 4"),
+        ];
+
         var saved = settings.Load();
+
+        _isAppEnabled = saved.Enabled;
+        _controllerSlot = saved.ControllerSlot is >= 1 and <= 4 ? saved.ControllerSlot : 1;
+        _watcher.Enabled = _isAppEnabled;
+        _watcher.PinnedSlot = _controllerSlot - 1;
+        if (!_isAppEnabled)
+        {
+            _stateWord = "Paused";
+            _stateDetail = "Controller combos are off.";
+        }
 
         foreach (var shortcut in saved.CustomShortcuts)
             CustomShortcuts.Add(shortcut);
@@ -96,6 +133,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         _startWithWindows = StartupService.IsEnabled();
         RebuildSecondOptions();
         RebuildRecordSecondOptions();
+        RecordShortcutOptions.Add(new RecordShortcutOption(RecordShortcutOption.NoneKey, "None"));
         RecordShortcutOptions.Add(new RecordShortcutOption(RecordShortcutOption.GameBarKey, ShortcutText.GameBarRecordDisplay));
         SyncRecordShortcutOptions();
         UpdateShortcutButtons();
@@ -128,6 +166,39 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     }
 
     partial void OnStartWithWindowsChanged(bool value) => StartupService.SetEnabled(value);
+
+    partial void OnIsAppEnabledChanged(bool value)
+    {
+        _watcher.Enabled = value;
+        IsComboHeld = false;
+
+        if (value)
+        {
+            RestoreIdleState();
+        }
+        else
+        {
+            StateWord = "Paused";
+            StateDetail = "Screenshot and recording combos are off.";
+        }
+
+        Persist();
+    }
+
+    partial void OnControllerSlotChanged(int value)
+    {
+        var clamped = Math.Clamp(value, 1, 4);
+        if (clamped != value)
+        {
+            ControllerSlot = clamped;
+            return;
+        }
+
+        _watcher.PinnedSlot = clamped - 1;
+        OnPropertyChanged(nameof(SelectedPlayer));
+        ApplyConnection(_watcher.CurrentSlot);
+        Persist();
+    }
 
     private void Hook(ProfileItem item)
     {
@@ -170,22 +241,19 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     {
         var first = SelectedProfile?.First ?? ControllerButton.LB;
 
-        SecondOptions =
-        [
-            new ButtonOption(ControllerButton.None, "None"),
-            .. FirstOptions.Where(o => o.Value != first),
-        ];
+        // None is always available; a real button is hidden only from its own pair.
+        SecondOptions = FirstOptions
+            .Where(o => o.Value == ControllerButton.None || o.Value != first)
+            .ToList();
     }
 
     private void RebuildRecordSecondOptions()
     {
         var recordFirst = SelectedProfile?.RecordFirst ?? ControllerButton.RB;
 
-        RecordSecondOptions =
-        [
-            new ButtonOption(ControllerButton.None, "None"),
-            .. FirstOptions.Where(o => o.Value != recordFirst),
-        ];
+        RecordSecondOptions = FirstOptions
+            .Where(o => o.Value == ControllerButton.None || o.Value != recordFirst)
+            .ToList();
     }
 
     /// <summary>Keeps the dropdown in sync with the custom-shortcut library,
@@ -201,7 +269,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         for (var i = RecordShortcutOptions.Count - 1; i >= 0; i--)
         {
             var option = RecordShortcutOptions[i];
-            if (option.Key == RecordShortcutOption.GameBarKey)
+            if (option.Key == RecordShortcutOption.GameBarKey ||
+                option.Key == RecordShortcutOption.NoneKey)
                 continue;
 
             var shortcut = CustomShortcuts.FirstOrDefault(c => RecordShortcutOption.ForCustom(c.Id) == option.Key);
@@ -387,6 +456,8 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         Profiles = Profiles.Select(p => p.ToProfile()).ToList(),
         CustomShortcuts = CustomShortcuts.ToList(),
         SelectedProfile = SelectedProfile?.Name,
+        Enabled = IsAppEnabled,
+        ControllerSlot = ControllerSlot,
     });
 
     private void SyncWatcher()
@@ -404,10 +475,14 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
     private void ApplyConnection(int slot)
     {
         IsConnected = slot >= 0;
-        ConnectionText = slot >= 0 ? $"Controller {slot + 1}" : "No controller detected";
-        ConnectionHint = slot >= 0
-            ? ""
-            : "Connect an XInput pad - USB or Bluetooth.";
+
+        if (!IsAppEnabled)
+        {
+            IsComboHeld = false;
+            StateWord = "Paused";
+            StateDetail = "Screenshot and recording combos are off.";
+            return;
+        }
 
         if (slot >= 0)
         {
@@ -421,12 +496,18 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         {
             IsComboHeld = false;
             StateWord = "No controller";
-            StateDetail = "The combo is parked until a pad connects.";
+            StateDetail = $"No pad on Player {ControllerSlot}. Pick another player.";
         }
     }
 
     private void ApplyComboHeld(bool held)
     {
+        if (!IsAppEnabled)
+        {
+            IsComboHeld = false;
+            return;
+        }
+
         IsComboHeld = held;
 
         if (held)
@@ -440,11 +521,20 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
     }
 
-    private void TriggerCapture() => _ = CaptureAsync();
+    private void TriggerCapture()
+    {
+        if (!IsAppEnabled)
+            return;
+
+        _ = CaptureAsync();
+    }
 
     private void TriggerRecording()
     {
-        if (SelectedProfile is not { } profile)
+        if (!IsAppEnabled || SelectedProfile is not { } profile)
+            return;
+
+        if (profile.RecordShortcut == RecordShortcut.None)
             return;
 
         if (profile.RecordShortcut == RecordShortcut.Custom &&
@@ -482,16 +572,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
             await Task.Delay(1600);
 
-            if (IsComboHeld)
-            {
-                StateWord = "Combo held";
-                StateDetail = "";
-            }
-            else
-            {
-                StateWord = "Ready";
-                StateDetail = "";
-            }
+            RestoreIdleState();
         }
         catch (Exception ex)
         {
@@ -530,16 +611,7 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
 
             await Task.Delay(1600);
 
-            if (IsComboHeld)
-            {
-                StateWord = "Combo held";
-                StateDetail = "";
-            }
-            else
-            {
-                StateWord = "Ready";
-                StateDetail = "";
-            }
+            RestoreIdleState();
         }
         catch (Exception ex)
         {
@@ -552,12 +624,42 @@ public sealed partial class MainViewModel : ObservableObject, IDisposable
         }
     }
 
+    private void RestoreIdleState()
+    {
+        if (!IsAppEnabled)
+        {
+            StateWord = "Paused";
+            StateDetail = "Screenshot and recording combos are off.";
+        }
+        else if (!IsConnected)
+        {
+            StateWord = "No controller";
+            StateDetail = $"No pad on Player {ControllerSlot}. Pick another player.";
+        }
+        else if (IsComboHeld)
+        {
+            StateWord = "Combo held";
+            StateDetail = "";
+        }
+        else
+        {
+            StateWord = "Ready";
+            StateDetail = "";
+        }
+    }
+
     private static void OnUi(Action action)
     {
         var dispatcher = System.Windows.Application.Current?.Dispatcher;
         if (dispatcher is null)
+        {
             action();
-        else
-            dispatcher.InvokeAsync(action);
+            return;
+        }
+
+        if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
+            return;
+
+        dispatcher.InvokeAsync(action);
     }
 }

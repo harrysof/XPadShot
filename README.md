@@ -9,6 +9,14 @@ PNG.
 
 ## What it does
 
+- **Master power switch** - the chrome rocker at the top pauses the screenshot
+  and screen-recording combos. Off greys out the shortcut panel, but controller
+  detection, the player picker and the player LED stay live. The state is
+  remembered across launches.
+- **Player position picker** - choose Player 1-4 from the dropdown next to the
+  switch. Windows assigns the XInput ports, so this selects which position
+  XPadShot listens to. The LED shows the chosen position at a glance: green
+  (1), blue (2), yellow (3), purple (4).
 - **First run asks for your shortcut** - the welcome dialog lets you pick the
   combo that saves a screenshot; you can change it any time later.
 - **Start with Windows (minimized to tray)** - toggle at the bottom of the
@@ -20,11 +28,12 @@ PNG.
   was last in focus (the app detects the foreground process automatically - you
   never pick one), are renameable with the pencil button, and start from the
   currently selected combo.
-- Hold both combo buttons - one screenshot, once per press. The second button
-  can be "None" for single-button combos.
+- Hold both combo buttons - one screenshot, once per press. Either slot can be
+  "None": one None makes the other button a single-button combo, and both None
+  disables the action entirely. The same applies to the recording combo.
 - **Screen recording combo.** Each profile has a second controller combo that
-  synthesizes a keyboard shortcut. The dropdown offers the built-in **Game Bar
-  record** hotkey (**Win + Alt + R**) plus a library of *named custom
+  synthesizes a keyboard shortcut. The dropdown offers **None**, the built-in
+  **Game Bar record** hotkey (**Win + Alt + R**) plus a library of *named custom
   shortcuts*: add one with the **+** button and pick the modifiers (Ctrl / Alt
   / Shift / Win) and the key from dropdowns (letters, digits, F-keys, numpad,
   arrows, Print Screen and more) - the combo then sends exactly that chord, so
@@ -57,6 +66,7 @@ PNG.
 - **Double-click** the tray icon to bring the window back.
 - **Right-click, then Exit** to actually quit.
 - Launching `XPadShot.exe` again just brings the existing instance forward.
+- When paused, the tray tooltip reads `XPadShot - paused`.
 
 ## Why not simulate Win+PrtScn?
 
@@ -88,11 +98,16 @@ XPadShot.exe --minimized            # start straight to the tray (used by the Wi
   borderless-fullscreen apps, but no normal window (without injecting into the
   game) can appear over true exclusive fullscreen.
 - LT/RT count as pressed past ~25% of their travel.
+- **Player positions** map to XInput ports: Player N is XInput slot N-1.
+  Windows owns that numbering; the picker chooses which port XPadShot listens
+  to. XPadShot cannot swap or reorder the slots for other apps or games - no
+  user-mode app can. To change a pad's Windows position, reconnect the pads in
+  the order you want (or use a virtual-controller tool).
 - Settings live in `%APPDATA%\XPadShot\settings.json` (profiles, combos, the
-  custom-shortcut library, the selected profile). Older settings formats
-  migrate automatically.
-- Hot-plug friendly: it polls all four XInput slots and follows the first
-  connected pad.
+  custom-shortcut library, the selected profile, the master power state and
+  the selected player position). Older settings formats migrate automatically.
+- Hot-plug friendly: it polls the selected player position at 125 Hz and
+  follows it when the pad connects or disconnects.
 - Crash safety: unexpected UI errors are logged to
   `%TEMP%\XPadShot.error.log` and shown in a dialog instead of killing the
   background app.
@@ -103,15 +118,15 @@ XPadShot.exe --minimized            # start straight to the tray (used by the Wi
 | --- | --- |
 | `assets/` | App icon (`Xpadshot.png` + generated `xpadshot.ico`) and the shutter button art (`Button_Logo.png`) |
 | `App.xaml(.cs)` | Composition root, tray icon, single-instance, first-run, `--capture` / `--test-sound` |
-| `MainWindow.xaml(.cs)` | The whole UI + glow/flash animations |
+| `MainWindow.xaml(.cs)` | The whole UI (master power/player strip, profiles, combos) + glow/flash animations |
 | `Views/FirstRunDialog.xaml(.cs)` | Welcome / shortcut setup on first launch |
 | `Views/ShortcutDialog.xaml(.cs)` | Add/edit dialog for custom recording shortcuts (name + modifier/key pickers) |
 | `Views/ConfirmDialog.xaml(.cs)` | Small glass confirm prompt (shortcut deletion) |
 | `Views/OverlayToast.xaml(.cs)` | The red feedback toast (top right corner, animated, click-through, topmost) |
-| `Theme/Glass.xaml` | Palette, glass cards, gel buttons, combo/list/textbox styling |
+| `Theme/Glass.xaml` | Palette, glass cards, chrome power switch, player LED, buttons, combo/list/textbox styling |
 | `ViewModels/MainViewModel.cs` | Profile state, capture flow, persistence |
 | `ViewModels/ProfileItem.cs` | Editable profile (name, combo) |
-| `Services/ControllerWatcher.cs` | 125 Hz XInput poller, edge-triggered combos (screenshot + recording) |
+| `Services/ControllerWatcher.cs` | 125 Hz XInput poller for the selected player position, edge-triggered combos (screenshot + recording), master pause |
 | `Services/KeyboardSender.cs` | Synthesizes the recording keyboard shortcuts (SendInput) |
 | `Services/OverlayService.cs` | Lazily manages the shared feedback-toast window |
 | `Services/ForegroundWatcher.cs` | Foreground app tracking (file labels, new-profile names) |

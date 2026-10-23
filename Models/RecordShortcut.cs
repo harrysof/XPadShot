@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 namespace XPadShot.Models;
 
 /// <summary>How a profile triggers screen recording.
+/// None means the recording combo is configured but sends nothing.
 /// GameBarOpen and SnippingRecord are retired values from older settings files;
 /// settings migration rewrites them to GameBarRecord.</summary>
 public enum RecordShortcut
@@ -11,6 +12,7 @@ public enum RecordShortcut
     Custom = 1,
     GameBarOpen = 2,
     SnippingRecord = 3,
+    None = 4,
 }
 
 [Flags]
@@ -35,6 +37,7 @@ public sealed record CustomShortcut
 /// <summary>An entry of the recording-shortcut dropdown (built-in or custom).</summary>
 public sealed partial class RecordShortcutOption : ObservableObject
 {
+    public const string NoneKey = "preset:none";
     public const string GameBarKey = "preset:gamebar";
 
     [ObservableProperty]
@@ -46,7 +49,7 @@ public sealed partial class RecordShortcutOption : ObservableObject
         _display = display;
     }
 
-    /// <summary>Dropdown identity: "preset:gamebar" or "custom:&lt;id&gt;".</summary>
+    /// <summary>Dropdown identity: "preset:none", "preset:gamebar" or "custom:&lt;id&gt;".</summary>
     public string Key { get; }
 
     public static string ForCustom(string id) => "custom:" + id;

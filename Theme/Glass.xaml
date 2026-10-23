@@ -178,6 +178,172 @@
         <Setter Property="Tag" Value="close"/>
     </Style>
 
+    <!-- ============ Power switch (2000s chrome rocker) ============ -->
+    <Style x:Key="PowerSwitch" TargetType="ToggleButton">
+        <Setter Property="Width" Value="92"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid>
+                        <Border x:Name="Bezel" CornerRadius="8"
+                                BorderThickness="1" BorderBrush="#0A0D12">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Color="#7A8799" Offset="0"/>
+                                    <GradientStop Color="#3C4656" Offset="0.42"/>
+                                    <GradientStop Color="#242B36" Offset="0.58"/>
+                                    <GradientStop Color="#10141A" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Effect>
+                                <DropShadowEffect Color="#05070B" BlurRadius="12" ShadowDepth="3" Opacity="0.7"/>
+                            </Border.Effect>
+                        </Border>
+
+                        <Border CornerRadius="7,7,0,0" Height="13" Margin="1,1,1,0"
+                                VerticalAlignment="Top"
+                                IsHitTestVisible="False">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Color="#66FFFFFF" Offset="0"/>
+                                    <GradientStop Color="#00FFFFFF" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+
+                        <Border x:Name="Track" CornerRadius="6" Margin="4"
+                                BorderThickness="1" BorderBrush="#05070A">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Color="#080B0F" Offset="0"/>
+                                    <GradientStop Color="#1B222D" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+
+                        <Border x:Name="Knob" Width="40" Height="24"
+                                Margin="6,0,0,0"
+                                HorizontalAlignment="Left" VerticalAlignment="Center"
+                                CornerRadius="5"
+                                BorderThickness="1" BorderBrush="#0B0E13">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Color="#8B97A8" Offset="0"/>
+                                    <GradientStop Color="#5B6675" Offset="0.44"/>
+                                    <GradientStop Color="#3A424E" Offset="0.56"/>
+                                    <GradientStop Color="#252C36" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Effect>
+                                <DropShadowEffect Color="#020406" BlurRadius="6" ShadowDepth="2" Opacity="0.75"/>
+                            </Border.Effect>
+                            <Grid>
+                                <Border CornerRadius="4,4,0,0" Height="9" Margin="1,1,1,0"
+                                        VerticalAlignment="Top"
+                                        IsHitTestVisible="False">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#7AFFFFFF" Offset="0"/>
+                                            <GradientStop Color="#00FFFFFF" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                </Border>
+                                <TextBlock x:Name="KnobText"
+                                           Text="OFF"
+                                           FontSize="8.5"
+                                           FontWeight="Bold"
+                                           Foreground="#E4EFFA"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           IsHitTestVisible="False"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Knob" Property="Margin" Value="46,0,0,0"/>
+                            <Setter TargetName="KnobText" Property="Text" Value="ON"/>
+                            <Setter TargetName="KnobText" Property="Foreground" Value="#0B1E2E"/>
+                            <Setter TargetName="Knob" Property="BorderBrush" Value="#B8E6FF"/>
+                            <Setter TargetName="Knob" Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="#D6F0FF" Offset="0"/>
+                                        <GradientStop Color="#7CC8FF" Offset="0.42"/>
+                                        <GradientStop Color="#3E97E2" Offset="0.56"/>
+                                        <GradientStop Color="#24639B" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="Knob" Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect Color="#59B6FF" BlurRadius="12" ShadowDepth="0" Opacity="0.65"/>
+                                </Setter.Value>
+                            </Setter>
+                            <Setter TargetName="Bezel" Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect Color="#59B6FF" BlurRadius="18" ShadowDepth="0" Opacity="0.55"/>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bezel" Property="BorderBrush" Value="#6FC4FF"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bezel" Property="BorderBrush" Value="#8CBFE8FF"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Knob" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ============ Player position LED ============ -->
+    <Style x:Key="PlayerLed" TargetType="Ellipse">
+        <Setter Property="Fill" Value="#5ED68F"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="#5ED68F" BlurRadius="10" ShadowDepth="0" Opacity="0.9"/>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding ControllerSlot}" Value="2">
+                <Setter Property="Fill" Value="#59B6FF"/>
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect Color="#59B6FF" BlurRadius="10" ShadowDepth="0" Opacity="0.9"/>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding ControllerSlot}" Value="3">
+                <Setter Property="Fill" Value="#F2C94C"/>
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect Color="#F2C94C" BlurRadius="10" ShadowDepth="0" Opacity="0.9"/>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding ControllerSlot}" Value="4">
+                <Setter Property="Fill" Value="#B98CFF"/>
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect Color="#B98CFF" BlurRadius="10" ShadowDepth="0" Opacity="0.9"/>
+                    </Setter.Value>
+                </Setter>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <!-- ============ ComboBox ============ -->
     <DataTemplate x:Key="ButtonOptionTemplate">
         <TextBlock Text="{Binding Label}"/>
@@ -341,6 +507,10 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style x:Key="GlassComboCompact" TargetType="ComboBox" BasedOn="{StaticResource GlassCombo}">
+        <Setter Property="Height" Value="32"/>
     </Style>
 
     <!-- ============ Buttons (dialog + icon) ============ -->

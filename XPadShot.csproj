@@ -11,7 +11,7 @@
     <AssemblyName>XPadShot</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>assets\xpadshot.ico</ApplicationIcon>
-    <Version>1.8.0</Version>
+    <Version>1.9.0</Version>
     <Product>XPadShot</Product>
     <Description>Take a screenshot with a controller combo (XInput).</Description>
     <!-- WFAC010: WinForms advises its own DPI API; this is a WPF app, manifest-based PerMonitorV2 is correct here. -->
